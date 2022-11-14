@@ -53,6 +53,7 @@ function App() {
     }
   }
 
+  // add border to input box
   return (
     <div className="App">
       <Typography id="Header" variant="h4" gutterBottom>
