@@ -1,0 +1,79 @@
+---
+title: "Final_Project_Modeling"
+author: "Conor Flynn"
+date: "2022-11-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Read in data file
+```{r}
+data <- read.csv("authorsWyears.csv")
+```
+
+# (NOT USED) Scale all necessary data columns
+```{r}
+scaled <- data
+scaled$CareerLength <- scale(scaled$careerLength) 
+scaled$PaperCount <- scale(scaled$PaperCount)
+scaled$CitationCount <- scale(scaled$CitationCount)
+```
+
+Split into training and testing data
+```{r}
+library(caTools)
+
+set.seed(1)
+
+split_set <- data
+sample <- sample.split(split_set$AuthorId, SplitRatio = 0.7)
+train  <- subset(split_set, sample == TRUE)
+test   <- subset(split_set, sample == FALSE)
+```
+
+Perform linear regression on scaled
+```{r}
+lm_paper_career <- lm(log(PaperCount)~careerLength, train)
+lm_citation_career <- lm(log(CitationCount)~careerLength, train)
+```
+
+Train data on lr and see pred  iction difference from actual
+```{r}
+pred_paper_career <- predict(object = lm_paper_career, test)
+pred_citation_career <- predict(object = lm_citation_career, test) 
+```
+
+Calculate MSE
+```{r}
+mse_paper_career <- mean((pred_paper_career - test$PaperCount)^2)
+mse_citation_career <- mean((pred_citation_career - test$CitationCount)^2)
+```
+
+```{r}
+test_sample <- test[1:100, ]
+testx <- test_sample$careerLength
+#testy1 <- pred_paper_career[1:10]
+testy1 <- test_sample$PaperCount
+testy2 <- test_sample$CitationCount
+
+plot(testx, testy1,
+    main='CareerLength vs PaperCount',
+    xlab='CareerLength',
+    ylab='PaperCount')
+abline(lm_paper_career)
+
+plot(testx, testy2,
+    main='CareerLength vs CitationCount',
+    xlab='CareerLength',
+    ylab='CitationCount')
+abline(lm_citation_career)
+```
