@@ -31,7 +31,10 @@ function App() {
 
   // Getting ScienceIndex
   const [semanticID, setSemanticID] = useState("");
-  const [scienceIndex, setScienceIndex] = useState("");
+  const [hIndex, setHIndex] = useState("");
+  const [careerLength, setCareerLength] = useState("");
+  const [paperCount, setPaperCount] = useState("");
+  const [citationCount, setCitationCount] = useState("");
 
   async function handleGetScienceIndex() {
     if (window.ethereum) {
@@ -46,7 +49,7 @@ function App() {
         const response = await contract.getScienceIndex(semanticID);
         const receipt = await provider.getTransactionReceipt(response.hash);
         console.log("response: ", receipt);
-        setScienceIndex(Number(receipt.logs[0].data));
+        setScienceIndex(Number(receipt.logs[0].data)/1e18);
       } catch(err) {
         console.log("error: ", err);
       }
@@ -76,7 +79,23 @@ function App() {
       </Stack>
       <TextField
         label={"Science Index" + (semanticID != "" ? " for " + semanticID : "")}
+        value={hIndex}
+      />
+      <TextField
+        label={"h-index" + (semanticID != "" ? " for " + semanticID : "")}
         value={scienceIndex}
+      />
+      <TextField
+        label={"Career Length" + (semanticID != "" ? " for " + semanticID : "")}
+        value={careerLength}
+      />
+      <TextField
+        label={"Paper Count" + (semanticID != "" ? " for " + semanticID : "")}
+        value={paperCount}
+      />
+      <TextField
+        label={"Citation Count" + (semanticID != "" ? " for " + semanticID : "")}
+        value={citationCount}
       />
     </div>
   );
