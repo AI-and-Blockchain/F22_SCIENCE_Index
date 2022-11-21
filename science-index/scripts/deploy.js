@@ -1,9 +1,10 @@
 const hre = require("hardhat");
+const ethers = require("ethers");
 
 async function main() {
 
   const ScienceIndex = await hre.ethers.getContractFactory("ScienceIndex");
-  const scienceIndex = await ScienceIndex.deploy(2.753147*1e18,0.01453348*1e18,0.1060934*1e18,0.001541024*1e18, 21660754*1e18);
+  const scienceIndex = await ScienceIndex.deploy(ethers.utils.parseEther("2.753147"), ethers.utils.parseEther("0.01453348"), ethers.utils.parseEther("0.1060934"), ethers.utils.parseEther("0.001541024"), ethers.utils.parseEther("21660754"));
 
   await scienceIndex.deployed();
 

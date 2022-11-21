@@ -55,7 +55,7 @@ contract ScienceIndex {
     }
 
     function calculateScienceIndex(int256 hi, int256 cl, int256 pc, int256 cc) private view returns(int256) {
-        return ((yIntercept) + (careerLength * cl) + (paperCount * pc) + (citationCount * cc)) - hi;
+        return ((yIntercept) + ((careerLength * cl)/1e18) + ((paperCount * pc)/1e18) + ((citationCount * cc)/1e18)) - hi;
         // return ((yIntercept) + (careerLength * cl*1e18) + (paperCount * pc*1e18) + (citationCount * cc*1e18)) - hi;
     }
 
