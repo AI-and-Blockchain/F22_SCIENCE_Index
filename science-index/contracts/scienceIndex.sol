@@ -76,16 +76,6 @@ contract ScienceIndex {
         cc = 434;
     }
 
-    // https://ethereum.stackexchange.com/questions/2910/can-i-square-root-in-solidity
-    function sqrt(int256 x) private pure returns (int256 y) {
-        int256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
-    }
-
     function updateScales(int256 dif) private {
         int256 newSampleMean = sampleMean * dataPoints + dif;
         dataPoints += 1;
