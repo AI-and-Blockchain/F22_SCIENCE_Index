@@ -5,3 +5,7 @@
 .Output {
   margin: 10px;
 }
+
+.OutputText {
+  width: 300px;
+}

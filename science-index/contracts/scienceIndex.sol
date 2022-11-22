@@ -4,13 +4,23 @@ pragma solidity ^0.8.9;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
+// https://github.com/paulrberg/prb-math
+import {PRBMathSD59x18} from "./PRBMathSD59x18.sol";
+import {PRBMath} from "./PRBMath.sol";
+
 contract ScienceIndex {
+
+    using PRBMathSD59x18 for int256;
+    using PRBMath for uint256;
+
     // four weights
     int256 public yIntercept;
     int256 public careerLength;
     int256 public paperCount;
     int256 public citationCount;
-    uint256 public dataPoints;
+    int256 public dataPoints;
+    int256 public sampleMean;
+    int256 public sampleStandardDeviation;
     // graph stuff set up
     /*
         Y-Intercept: 2.753147
@@ -29,6 +39,17 @@ contract ScienceIndex {
         Show the four statistics we used on the front end
     */
 
+    /*
+        // Cool font code
+        // skeleton code
+        // user to front end 
+
+        sequence diagram for user
+        also mention contructor used to shove the AI
+
+        Also move to the test net
+    */
+
     event scienceIndexUpdate(
         string indexed semanticID,
         int256 scienceIndex,
@@ -38,30 +59,51 @@ contract ScienceIndex {
         int256 citationCount
     );
 
-    constructor(int256 yi, int256 cl, int256 pc, int256 cc, uint256 dp){ // The base unit is 1e18
+    constructor(int256 yi, int256 cl, int256 pc, int256 cc, int256 dp, int256 sm, int256 ssd){ // The base unit is 1e18
         yIntercept = yi;
         careerLength = cl;
         paperCount = pc;
         citationCount = cc;
-        dataPoints = dp;
+        dataPoints = dp; // except for this, just straight number
+        sampleMean = sm;
+        sampleStandardDeviation = ssd;
     }
 
-    function getAuthorData(string memory semanticID) private pure returns(int256, int256, int256, int256) {
-        return (5*1e18, 5*1e18, 5*1e18, 5*1e18);
+    function getAuthorData(string memory semanticID) private pure returns(int256 hi, int256 cl, int256 pc, int256 cc) {
+        hi = 12;
+        cl = 9;
+        pc = 79;
+        cc = 434;
     }
 
-    function updateWeights(int256 hi, int256 cl, int256 pc, int256 cc) private {
-        dataPoints += 1e18;
+    // https://ethereum.stackexchange.com/questions/2910/can-i-square-root-in-solidity
+    function sqrt(int256 x) private pure returns (int256 y) {
+        int256 z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
     }
 
-    function calculateScienceIndex(int256 hi, int256 cl, int256 pc, int256 cc) private view returns(int256) {
-        return ((yIntercept) + ((careerLength * cl)/1e18) + ((paperCount * pc)/1e18) + ((citationCount * cc)/1e18)) - hi;
-        // return ((yIntercept) + (careerLength * cl*1e18) + (paperCount * pc*1e18) + (citationCount * cc*1e18)) - hi;
+    function updateScales(int256 dif) private {
+        int256 newSampleMean = sampleMean * dataPoints + dif;
+        dataPoints += 1;
+        newSampleMean = newSampleMean/dataPoints;
+        // https://math.stackexchange.com/questions/775391/can-i-calculate-the-new-standard-deviation-when-adding-a-value-without-knowing-t
+        sampleStandardDeviation = (((dataPoints-2)*sampleStandardDeviation*sampleStandardDeviation/1e18 + (dif - newSampleMean)*(dif - sampleMean)/1e18)/(dataPoints-1)).sqrt();
+        sampleMean = newSampleMean;
+    }
+
+    function calculateScienceIndex(int256 hi, int256 cl, int256 pc, int256 cc) private returns(int256) {
+        int256 difference = hi*1e18 - ((yIntercept) + (careerLength * cl) + (paperCount * pc) + (citationCount * cc));
+        updateScales(difference);
+        int256 scaledDifference = ((difference - sampleMean)*1e18)/sampleStandardDeviation;
+        return 10e18*1e18 / (1e18 + ((1e18*1e18)/scaledDifference.exp()));
     }
 
     function getScienceIndex(string memory semanticID) public {
         (int256 hi, int256 cl, int256 pc, int256 cc) = getAuthorData(semanticID);
-        updateWeights(hi, cl, pc, cc);
         emit scienceIndexUpdate(semanticID, calculateScienceIndex(hi, cl, pc, cc), hi, cl, pc, cc);
     }
 }

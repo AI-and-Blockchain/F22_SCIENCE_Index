@@ -1,17 +1,21 @@
-const hre = require("hardhat");
-const ethers = require("ethers");
+const Ethers = require("ethers");
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
 
-  const ScienceIndex = await hre.ethers.getContractFactory("ScienceIndex");
-  const scienceIndex = await ScienceIndex.deploy(ethers.utils.parseEther("2.753147"), ethers.utils.parseEther("0.01453348"), ethers.utils.parseEther("0.1060934"), ethers.utils.parseEther("0.001541024"), ethers.utils.parseEther("21660754"));
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  await scienceIndex.deployed();
+  console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  console.log("ScienceIndex deployed to:", scienceIndex.address);
+  const ScienceIndex = await ethers.getContractFactory("ScienceIndex");
+  const scienceIndex = await ScienceIndex.deploy(Ethers.utils.parseEther("2.75315"), Ethers.utils.parseEther("0.01453"), Ethers.utils.parseEther("0.10609"), Ethers.utils.parseEther("0.00154"), 21660754, Ethers.utils.parseEther("0.0002418739"), Ethers.utils.parseEther("3.605098"));
+
+  console.log("ScienceIndex address:", scienceIndex.address);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
