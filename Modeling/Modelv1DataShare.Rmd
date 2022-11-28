@@ -1,0 +1,104 @@
+---
+title: "Final_Project_Modeling"
+date: "2022-11-22"
+output: html_document
+---
+
+Load packages
+```{r}
+library(caTools)
+library(ggplot2)
+library(hrbrthemes)
+library(scales)
+library(dplyr)
+library(MASS)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Read in data file
+```{r}
+data <- read_csv("~/data/SCIENCE-index/authorsFullDataCite.csv")
+```
+
+# (NOT USED) Scale all necessary data columns
+```{r}
+scaled <- data
+scaled$careerLength <- scale(scaled$careerLength) 
+scaled$PaperCount <- scale(scaled$PaperCount)
+scaled$CitationCount <- scale(scaled$CitationCount)
+scaled$Hindex <- scale(scaled$Hindex)
+scaled$DataShareCount <- scale(scaled$DataShareCount)
+
+scaled <- scaled[,-1]
+scaled <- scaled[,-1]
+```
+
+Split into training and testing data
+```{r}
+
+set.seed(1)
+
+split_set <- data
+sample <- sample.split(split_set$AuthorId, SplitRatio = 0.9)
+train  <- subset(split_set, sample == TRUE)
+test   <- subset(split_set, sample == FALSE)
+```
+
+Perform linear regression on scaled
+```{r}
+lm_hindex <- rlm(Hindex ~ careerLength + PaperCount + CitationCount + DataShareCount, train)
+```
+
+Train data on lr and see prediction difference from actual
+```{r}
+test$DataShareCount <- test$DataShareCount ^ 2
+test$Pred <- predict(object = lm_hindex, test)
+test$DataShareCount <- test$DataShareCount ^ (1/2)
+```
+
+Calculate Difference
+```{r}
+test$Difference <- test$Hindex - test$Pred
+test$Difference <- scale(test$Difference)
+```
+
+Calculate SCIENCE-Index
+```{r}
+scale <- 10
+test$ScienceIndex <- 10/(1 + exp(-1 * test$Difference))
+```
+
+Plot graph
+```{r}
+
+testx <- test$Hindex
+testy1 <- test$Pred
+
+p1 <- ggplot(test, aes(x=Hindex, y=Pred, color=ScienceIndex)) +
+  geom_point() + 
+  geom_abline(intercept=0, slope=1, color="red")
+
+print(p1)
+
+p2 <- ggplot(test, aes(x=ScienceIndex)) +
+  geom_histogram(aes(y=after_stat(density)),
+                 binwidth = 1,
+                 colour="black") +
+  geom_density(alpha=.2)
+
+print(p2)
+
+
+p3 <- ggplot(test, aes(x=DataShareCount, y=Pred, color=ScienceIndex)) + geom_point()
+p3
+
+p5 <- ggplot(test_sample, aes(x=Hindex, y=ScienceIndex, color = careerLength)) + geom_point()
+p5
+
+```
+

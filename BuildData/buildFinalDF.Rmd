@@ -94,9 +94,7 @@ papers <- read_csv(paste(dataPath, papers, sep=""))
 affiliations <- read_csv(paste(dataPath, affils, sep=""))
 authors <- read_csv(paste(dataPath, authors, sep=""))
 
-
 affiliations <- distinct(affiliations)
-
 
 ```
 
@@ -107,35 +105,73 @@ AuthorPaperCitation = AuthorPaper \
    
 ```{R}
 
-df <- inner_join(affiliations, papers, by=c("PaperId")) %>% group_by(AuthorId) %>% summarize(careerStartYear = min(Year), careerEndYear = max(Year)) %>% mutate(careerLength = careerEndYear - careerStartYear)
-```
+authWyears <- inner_join(affiliations, papers, by=c("PaperId")) %>% group_by(AuthorId) %>% summarize(careerStartYear = min(Year), careerEndYear = max(Year)) %>% mutate(careerLength = careerEndYear - careerStartYear)
 
-```{R}
-df <- select(df, AuthorId, careerLength)
+authWyears <- select(authWyears, AuthorId, careerLength)
 
-AuthorsWYear <- inner_join(df, authors, by=c("AuthorId"))
-AuthorsWYear <- AuthorsWYear %>% filter(PaperCount < CitationCount) %>% filter(PaperCount > 0) %>%filter(CitationCount > 0) %>% filter(careerLength > 0)
+authWyears <- inner_join(authWyears, authors, by=c("AuthorId"))
 
-write.csv(AuthorsWYear, "/data/SCIENCE-index/authorsWyears.csv", row.names = FALSE)
+#write.csv(AuthorsWYear, "/data/SCIENCE-index/authorsWyears.csv", row.names = FALSE)
 
 
 ```
 
 ```{R}
-papers <- papers %>% filter((EstimatedCitation < 1900 || EstimatedCitation > 2023))
+authWyearsaffils <- left_join(authWyears, affiliations, by=c("AuthorId"))
+
+
+authWyearsaffils <- select(authWyearsaffils, AuthorId, PaperId)
+#write.csv(df, "/data/SCIENCE-index/authorsWyearsAffils.csv", row.names = FALSE)
+
 
 ```
+
 
 ```{R}
 hindex <- function(x) {
-    print(x)
-    flush.console()
     tx <- sort(x, decreasing = T)
     return(sum(tx >= seq_along(tx)))
 }
 
 
-df <- inner_join(affiliations, papers, by=c("PaperId")) %>% group_by(AuthorId) %>% summarize(Hindex = hindex(array(EstimatedCitation)))
+df <- inner_join(df, papers, by=c("PaperId")) %>% group_by(AuthorId) %>% summarize(Hindex = hindex(array(EstimatedCitation)))
 
 
 ```
+```{R}
+authorsFinal <- inner_join(authors, df, by=c("AuthorId")) %>% filter(Hindex <= PaperCount)
+write.csv(authorsFinal, "/data/SCIENCE-index/authorsFinal.csv", row.names = FALSE)
+
+
+
+```
+
+
+```{R}
+
+
+dataPath = "/data/SCIENCE-index/" 
+authorsnames = "authorsNames.csv"
+authorsFinal = "authorsFinal.csv"
+
+
+
+# Load the data:
+authnames <- read_csv(paste(dataPath, authorsnames, sep=""))
+authnames <- authnames[,-3]
+authnames <- authnames[-1,]
+colnames(authnames)[2] = "Name"
+authnames$AuthorId <- as.double(authnames$AuthorId)
+
+
+authfin <- read_csv(paste(dataPath, authorsFinal, sep=""))
+
+
+
+authorsFinalNames <- left_join(authfin, authnames, by=c("AuthorId"))
+
+write.csv(authorsFinalNames, "/data/SCIENCE-index/authorsFinalNames.csv")
+```
+
+
+
