@@ -1,6 +1,6 @@
 import './App.css';
 import scienceIndexAbi from "./scienceIndexAbi.json";
-import {ethers} from "ethers";
+import {ethers, BigNumber} from "ethers";
 import {useEffect, useState} from "react";
 import {
   Button,
@@ -32,6 +32,10 @@ function App() {
   // Getting ScienceIndex
   const [semanticID, setSemanticID] = useState("");
   const [scienceIndex, setScienceIndex] = useState("");
+  const [hIndex, setHIndex] = useState("");
+  const [careerLength, setCareerLength] = useState("");
+  const [paperCount, setPaperCount] = useState("");
+  const [citationCount, setCitationCount] = useState("");
 
   async function handleGetScienceIndex() {
     if (window.ethereum) {
@@ -44,9 +48,20 @@ function App() {
       );
       try {
         const response = await contract.getScienceIndex(semanticID);
+        setScienceIndex("Loading...");
+        setHIndex("Loading...");
+        setCareerLength("Loading...");
+        setPaperCount("Loading...");
+        setCitationCount("Loading...");
+        await response.wait();
         const receipt = await provider.getTransactionReceipt(response.hash);
-        console.log("response: ", receipt);
-        setScienceIndex(Number(receipt.logs[0].data));
+        console.log("receipt: ", receipt);
+        console.log("value: ", receipt.logs[0].data.substring(0, 66));
+        setScienceIndex(ethers.utils.formatEther(BigNumber.from(receipt.logs[0].data.substring(0, 66)).fromTwos(256)));
+        setHIndex(BigNumber.from("0x" + receipt.logs[0].data.substring(66, 130)).fromTwos(256));
+        setCareerLength(BigNumber.from("0x" + receipt.logs[0].data.substring(130, 194)).fromTwos(256));
+        setPaperCount(BigNumber.from("0x" + receipt.logs[0].data.substring(194, 258)).fromTwos(256));
+        setCitationCount(BigNumber.from("0x" + receipt.logs[0].data.substring(258, 322)).fromTwos(256));
       } catch(err) {
         console.log("error: ", err);
       }
@@ -74,10 +89,40 @@ function App() {
           Get
         </Button>
       </Stack>
-      <TextField
-        label={"Science Index" + (semanticID != "" ? " for " + semanticID : "")}
-        value={scienceIndex}
-      />
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"Science Index" + (semanticID != "" ? " for " + semanticID : "")}
+          value={scienceIndex}
+        />
+      </Stack>
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"h-index" + (semanticID != "" ? " for " + semanticID : "")}
+          value={hIndex}
+          size="small"
+        />
+      </Stack>
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"Career Length" + (semanticID != "" ? " for " + semanticID : "")}
+          value={careerLength}
+          size="small"
+        />
+      </Stack>
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"Paper Count" + (semanticID != "" ? " for " + semanticID : "")}
+          value={paperCount}
+          size="small"
+        />
+      </Stack>
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"Citation Count" + (semanticID != "" ? " for " + semanticID : "")}
+          value={citationCount}
+          size="small"
+        />
+      </Stack>
     </div>
   );
 }
