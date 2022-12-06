@@ -8,7 +8,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const ScienceIndex = await ethers.getContractFactory("ScienceIndex");
-  const scienceIndex = await ScienceIndex.deploy(Ethers.utils.parseEther("2.75315"), Ethers.utils.parseEther("0.01453"), Ethers.utils.parseEther("0.10609"), Ethers.utils.parseEther("0.00154"), 21660754, Ethers.utils.parseEther("0.0002418739"), Ethers.utils.parseEther("3.605098"));
+  const scienceIndex = await ScienceIndex.deploy(Ethers.utils.parseEther("1.71933"), Ethers.utils.parseEther("0.06902"), Ethers.utils.parseEther("0.10867"), Ethers.utils.parseEther("0.00304"), 21660754, Ethers.utils.parseEther("0.0002418739"), Ethers.utils.parseEther("3.605098"));
 
   console.log("ScienceIndex address:", scienceIndex.address);
 }

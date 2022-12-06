@@ -86,7 +86,11 @@ contract ScienceIndex {
     }
 
     function calculateScienceIndex(int256 hi, int256 cl, int256 pc, int256 cc) private returns(int256) {
-        int256 difference = hi*1e18 - ((yIntercept) + (careerLength * cl) + (paperCount * pc) + (citationCount * cc));
+        int256 predicted = (yIntercept) + (careerLength * cl) + (paperCount * pc) + (citationCount * cc);
+        if(predicted > 60*1e18){
+            predicted = (predicted*1e18) / (0.571*1e18 + (0.07*1e18 * predicted)/1e18);
+        }
+        int256 difference = hi*1e18 - predicted;
         updateScales(difference);
         int256 scaledDifference = ((difference - sampleMean)*1e18)/sampleStandardDeviation;
         return 10e18*1e18 / (1e18 + ((1e18*1e18)/scaledDifference.exp()));
