@@ -10,7 +10,7 @@ import {
   TextField
 } from '@mui/material';
 
-const scienceIndexAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const scienceIndexAddress = "0x834a6bBAec202Db55F29062969E67469343D92F1";
 
 function App() {
   // CONNECTING
@@ -47,21 +47,51 @@ function App() {
         signer
       );
       try {
-        const response = await contract.getScienceIndex(semanticID);
         setScienceIndex("Loading...");
         setHIndex("Loading...");
         setCareerLength("Loading...");
         setPaperCount("Loading...");
         setCitationCount("Loading...");
+
+        const semanticResp = await fetch(
+          "https://api.semanticscholar.org/graph/v1/author/".concat(
+          semanticID,
+          "?fields=paperCount,citationCount,hIndex,papers.year"
+          )
+        );
+        const respJson = await semanticResp.json();
+        
+        const paperCount = respJson.paperCount
+        const citationCount = respJson.citationCount
+        const hindex = respJson.hIndex
+        
+        const papers = respJson.papers
+        let paperYears = []
+        for (let i = 0; i < papers.length; i++) {
+          if (papers[i].year !== null) {
+            paperYears.push(papers[i].year)
+          }
+        }
+        const careerLength = Math.max(...paperYears) - Math.min(...paperYears)
+        
+        setHIndex(hindex);
+        setCareerLength(careerLength);
+        setPaperCount(paperCount);
+        setCitationCount(citationCount);
+        
+        const response = await contract.getScienceIndex(
+          semanticID, 
+          hindex, 
+          careerLength, 
+          paperCount, 
+          citationCount
+        );
+
         await response.wait();
         const receipt = await provider.getTransactionReceipt(response.hash);
         console.log("receipt: ", receipt);
         console.log("value: ", receipt.logs[0].data.substring(0, 66));
         setScienceIndex(ethers.utils.formatEther(BigNumber.from(receipt.logs[0].data.substring(0, 66)).fromTwos(256)));
-        setHIndex(BigNumber.from("0x" + receipt.logs[0].data.substring(66, 130)).fromTwos(256));
-        setCareerLength(BigNumber.from("0x" + receipt.logs[0].data.substring(130, 194)).fromTwos(256));
-        setPaperCount(BigNumber.from("0x" + receipt.logs[0].data.substring(194, 258)).fromTwos(256));
-        setCitationCount(BigNumber.from("0x" + receipt.logs[0].data.substring(258, 322)).fromTwos(256));
       } catch(err) {
         console.log("error: ", err);
       }

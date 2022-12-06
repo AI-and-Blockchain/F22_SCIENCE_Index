@@ -69,12 +69,12 @@ contract ScienceIndex {
         sampleStandardDeviation = ssd;
     }
 
-    function getAuthorData(string memory semanticID) private pure returns(int256 hi, int256 cl, int256 pc, int256 cc) {
-        hi = 12;
-        cl = 9;
-        pc = 79;
-        cc = 434;
-    }
+    // function getAuthorData(string memory semanticID) private pure returns(int256 hi, int256 cl, int256 pc, int256 cc) {
+    //     hi = 12;
+    //     cl = 9;
+    //     pc = 79;
+    //     cc = 434;
+    // }
 
     function updateScales(int256 dif) private {
         int256 newSampleMean = sampleMean * dataPoints + dif;
@@ -92,8 +92,8 @@ contract ScienceIndex {
         return 10e18*1e18 / (1e18 + ((1e18*1e18)/scaledDifference.exp()));
     }
 
-    function getScienceIndex(string memory semanticID) public {
-        (int256 hi, int256 cl, int256 pc, int256 cc) = getAuthorData(semanticID);
+    function getScienceIndex(string memory semanticID, int256 hi, int256 cl, int256 pc, int256 cc) public {
+        // (int256 hi, int256 cl, int256 pc, int256 cc) = getAuthorData(semanticID);
         emit scienceIndexUpdate(semanticID, calculateScienceIndex(hi, cl, pc, cc), hi, cl, pc, cc);
     }
 }
