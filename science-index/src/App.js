@@ -111,7 +111,7 @@ function App() {
         <Input
           autoFocus
           disableUnderline
-          placeholder="Enter Semantic ID here"
+          placeholder="Enter Semantic Scholar ID here"
           sx={{ alignItems: 'center'}}
           onChange={(event) => {setSemanticID(event.target.value)}}
         >

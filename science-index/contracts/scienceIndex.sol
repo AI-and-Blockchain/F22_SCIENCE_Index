@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
-
 // https://github.com/paulrberg/prb-math
 import {PRBMathSD59x18} from "./PRBMathSD59x18.sol";
 import {PRBMath} from "./PRBMath.sol";
@@ -21,34 +18,6 @@ contract ScienceIndex {
     int256 public dataPoints;
     int256 public sampleMean;
     int256 public sampleStandardDeviation;
-    // graph stuff set up
-    /*
-        Y-Intercept: 2.753147
-        careerLength: 0.01453348
-        PaperCount: 0.1060934
-        CitationCount: 0.001541024
-        Regress over the h-index and compare to the actual h-index
-        21660754 data points to start
-        pred_hindex = (y-intercept) + (careerLength * 0.01453348) + (paperCount * 0.1060934) + (citationCount * 0.001541024)
-        science_index = (pred_hindex - actual_hindex)
-        safemath package for floats maybe
-
-        Look into how to find past calls
-        Store science-index in their browser so it comes back if they revisit the page
-
-        Show the four statistics we used on the front end
-    */
-
-    /*
-        // Cool font code
-        // skeleton code
-        // user to front end 
-
-        sequence diagram for user
-        also mention contructor used to shove the AI
-
-        Also move to the test net
-    */
 
     event scienceIndexUpdate(
         string indexed semanticID,
