@@ -9,8 +9,8 @@
       https://docs.chain.link/docs/any-api/get-request/introduction/
       https://api.semanticscholar.org/api-docs/graph#tag/Author-Data/operation/get_graph_get_author_search
   # The actual model in the Smart Contract
-      Skeleton the contract
+      The smart contract is written in solidity and deployed with hardhat. Hardhat is also used to run a local network if not using Goerli.  
       SCIindex: 0 to 10, where 5 is completely average, less than 5 is behind pace, more than 5 is behind
   # The front end
-      single page front end
-      build out the front end
+      The front end is built using react and connects to Ethereum based blockchains using ethers.  
+      Instructions for running the front end are included in the science-index folder.
