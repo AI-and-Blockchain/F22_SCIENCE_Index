@@ -10,7 +10,7 @@ import {
   TextField
 } from '@mui/material';
 
-const scienceIndexAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
+const scienceIndexAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // 1679913
 
 function App() {
   // CONNECTING
@@ -36,6 +36,7 @@ function App() {
   const [careerLength, setCareerLength] = useState("");
   const [paperCount, setPaperCount] = useState("");
   const [citationCount, setCitationCount] = useState("");
+  const [predictedHIndex, setPredictedHIndex] = useState("");
 
   async function handleGetScienceIndex() {
     if (window.ethereum) {
@@ -92,6 +93,7 @@ function App() {
         console.log("receipt: ", receipt);
         console.log("value: ", receipt.logs[0].data.substring(0, 66));
         setScienceIndex(ethers.utils.formatEther(BigNumber.from(receipt.logs[0].data.substring(0, 66)).fromTwos(256)));
+        setPredictedHIndex(ethers.utils.formatEther(BigNumber.from("0x" + receipt.logs[0].data.substring(66, 130)).fromTwos(256)));
       } catch(err) {
         console.log("error: ", err);
       }
@@ -150,6 +152,13 @@ function App() {
         <TextField className="OutputText"
           label={"Citation Count" + (semanticID != "" ? " for " + semanticID : "")}
           value={citationCount}
+          size="small"
+        />
+      </Stack>
+      <Stack className="Output" alignItems="center">
+        <TextField className="OutputText"
+          label={"Predicted h-index" + (semanticID != "" ? " for " + semanticID : "")}
+          value={predictedHIndex}
           size="small"
         />
       </Stack>
