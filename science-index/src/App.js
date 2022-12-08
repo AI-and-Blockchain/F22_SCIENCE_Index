@@ -53,6 +53,7 @@ function App() {
         setCareerLength("Loading...");
         setPaperCount("Loading...");
         setCitationCount("Loading...");
+        setPredictedHIndex("Loading...");
 
         const semanticResp = await fetch(
           "https://api.semanticscholar.org/graph/v1/author/".concat(
@@ -110,7 +111,7 @@ function App() {
         <Input
           autoFocus
           disableUnderline
-          placeholder="Enter Semantic ID here"
+          placeholder="Enter Semantic Scholar ID here"
           sx={{ alignItems: 'center'}}
           onChange={(event) => {setSemanticID(event.target.value)}}
         >
