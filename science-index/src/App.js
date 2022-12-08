@@ -10,7 +10,7 @@ import {
   TextField
 } from '@mui/material';
 
-const scienceIndexAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // 1679913
+const scienceIndexAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 function App() {
   // CONNECTING
