@@ -53,6 +53,7 @@ function App() {
         setCareerLength("Loading...");
         setPaperCount("Loading...");
         setCitationCount("Loading...");
+        setPredictedHIndex("Loading...");
 
         const semanticResp = await fetch(
           "https://api.semanticscholar.org/graph/v1/author/".concat(
